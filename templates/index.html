@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <section class="banner">
+        <div class="welcome">
+            Welcome
+        </div>
+    </section>
+
+    <section class="index_info">
+        <div class="q-section img-container">
+            <img src="/static/football.jpg" alt="FFIN">
+        </div>
+        <div class="response sha">
+            <h1><span>Introducing...</span></h1>
+            <p>The Football Fill-in! With legendary host, Ben Foster, at the helm, this captivating weekly show takes you on an exhilarating journey through the vibrant world of football. From electrifying matches to the latest transfer buzz, The Football Fill-in leaves no stone unturned in unraveling the captivating tales of the beautiful game. With insightful analysis and engaging discussions, join us as we dive headfirst into the thrilling highs and unexpected twists that shape the football landscape week after week. Get ready to immerse yourself in the passion, drama, and excitement that only The Football Fill-in can deliver!</p>
+        </div>
+    </section>
+
+    <section class="index_sections">
+        <div class="is-title">
+            Each Episode Consists of...
+        </div>
+        <div class="section-container">
+            <div class="section-object">
+                <h3>Opening Banter</h3>
+                <i class="fa-regular fa-futbol"></i>
+                <p>At the start of every episode, our hosts engage in lively banter, setting the tone for the week's events. During this segment, Ben, our host, and his special guests share their most cherished moments from various plays and then analyze what made those plays truly extraordinary.</p>
+            </div>
+            <div class="section-object">
+                <h3>Game Analysis</h3>
+                <i class="fa-regular fa-futbol"></i>
+                <p>Following the introduction, our hosts delve into a comprehensive breakdown of each Premier League fixture, tackling the most pressing questions surrounding every game. Within this section, they take a stance and passionately advocate for the sides they deem to have delivered the most impressive performances over the weekend.</p>
+            </div>
+            <div class="section-object">
+                <h3>The Quiz</h3>
+                <i class="fa-regular fa-futbol"></i>
+                <p>Concluding the episode, our hosts willingly submit themselves to a series of demanding football-related questions, engaging in a battle of wits to emerge triumphant. With each episode, a deserving winner is proclaimed, earning the esteemed title of the show's brightest football aficionado.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="i-quiz">
+        <div class="response q-section padd">
+            <h1>Think You Can Handle The <span>Quiz?</span></h1>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link active bun" aria-current="page" href="/rules">Take Quiz</a>
+                </li>
+            </ul>
+        </div>
+        <div class="q-section">
+            <img src="/static/collage.png" alt="Collage">
+        </div>
+    </section>
+
+    <section class="i-archive">
+        <div class="a-title">
+            Watch Any Episode Now!
+        </div>
+        <div class="i-scroll">
+            {% for video in videos %}
+            <a href="{{ video.url}}" class="vid-container-x">
+                <img src="{{ video.thumbnail }}" alt="Thumbnail">
+                <h3>{{ video.title }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="title-button">
+            <div class="i-title">
+                Want to find the <span>exact</span> video you're looking for? Check out the search filters to find any video you want!
+            </div>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link active bun" aria-current="page" href="/archive">Archive</a>
+                </li>
+            </ul>
+        </div>
+    </section>
+{% endblock %}

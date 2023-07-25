@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Thread
+{% endblock %}
+
+{% block main %}
+    <div class="top-bar a-title">
+        <h1>
+            <a href="/forum">Forum</a>
+        </h1>
+    </div>
+    <div class="main">
+        <div class="f-header">
+            <h1 class="f-title">
+                {{ post[0][0] }}
+            </h1>
+            <br>
+            <div class="f-content">
+                <h3 class="content">
+                    {{ post[0][3] }}
+                </h3>
+            </div>
+            <div class="bottom">
+                <h3 class="username">
+                    @{{ post[0][1][0].username }}
+                </h3>
+            </div>
+        </div>
+        <form action="/thread?id={{ id }}" method="POST" class="fc-form">
+            <input type="hidden" name="diff" value="1">
+            <input type="hidden" name="id" value="{{ id }}">
+            <textarea name="textarea" placeholder="Comment..."></textarea>
+            <button type="submit" class="btn btn-danger btn-big">Post</button>
+        </form>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="f-comments">
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="top-comment">
+                    <h4 class="username">
+                        @{{ comment[1][0].username }}
+                    </h4>
+                    <h4 class="content">
+                        {{ comment[0] }}
+                    </h4>
+                </div>
+                <form action="/thread?id={{ id }}" method="POST" class="comment-form">
+                    <input type="hidden" name="diff" value="2">
+                    <input type="hidden" name="id" value="{{ id }}">
+                    <input type="hidden" name="comment_id" value="{{ comment[3] }}">
+                    <textarea name="textarea" placeholder="Reply..."></textarea>
+                    <button type="submit" class="btn btn-danger btn-small">Post</button>
+                </form>
+                <div class="replies">
+                    {% for reply in comment[2] %}
+                    <div class="reply">
+                        <div class="reply-comment top-comment">
+                            <h6 class="username">
+                                @{{ reply[1][0].username }}
+                            </h6>
+                            <h6 class="content">
+                                {{ reply[0] }}
+                            </h6>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block main %}
+    <section class="l-container">
+        <div class="a-title">
+            Login or Register!
+        </div>
+        <div class="f-small">
+            If you just registered, enter your information in the login box!
+        </div>
+        <div class="field-container">
+            <div class="field">
+                <div class="l-title">
+                    Login
+                </div>
+                <form action="/login" method="post">
+                    <div class="mb-3 mobile">
+                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="l-username" name="l-username" placeholder="Username" type="text">
+                    </div>
+                    <div class="mb-3 mobile">
+                        <input class="form-control mx-auto w-auto" id="l-password" name="l-password" placeholder="Password" type="password">
+                    </div>
+                    <button class="btn btn-danger" type="submit">Log In</button>
+                </form>
+            </div>
+            <div class="field">
+                <div class="l-title">
+                    Register
+                </div>
+                <form action="/register" method="post">
+                    <div class="mb-3">
+                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="r-username" name="r-username" placeholder="Username" type="text">
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="r-password" name="r-password" placeholder="Password" type="password">
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="r-confirm" name="r-confirm" placeholder="Confirm Password" type="password">
+                    </div>
+                    <button class="btn btn-danger" type="submit">Register</button>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

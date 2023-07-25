@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block main %}
+<section class="quiz">
+    <div class="a-title title">
+        Results
+    </div>
+    <div class="r-banner">
+        <div class="banner-title marg">
+            You got {{ score }} out of 20!
+        </div>
+        <div class="banner-text marg">
+            As mentioned earlier, you can take this test as many times as you wish! Every new attempt will also entail 20 new and unique questions from the Football Fill-in!
+        </div>
+        <div class="buttons marg">
+            <div class="marg">
+                <ul class="nav nav-pills self">
+                    <li class="nav-item">
+                      <a class="nav-link active bun" aria-current="page" href="/rules">Again</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="marg">
+                <ul class="nav nav-pills self">
+                    <li class="nav-item">
+                      <a class="nav-link active bun" aria-current="page" href="/">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="a-title separate">
+        Review
+    </div>
+    <div class="results">
+        {% for question in questions %}
+        <div class="quiz-answer">
+            <div class="q-title">
+              {{ loop.index }}. {{ question[0] }}
+            </div>
+            <div class="generate">
+                <div class="r-marg">
+                    <div class="qa-title">
+                        Your Response:
+                    </div>
+                    <div class="qa-title">
+                        {% if question[2] == 'NULL' %}
+                        *Unanswered*
+                        {% else %}
+                        {{ question[2] }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="r-marg">
+                    <div class="qa-title">
+                        Correct Response:
+                    </div>
+                    <div class="qa-title">
+                        {{ question[1] }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

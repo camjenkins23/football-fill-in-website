@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Rules
+{% endblock %}
+
+{% block main %}
+    <section class="r-container">
+        <div class="rules-container">
+            <div class="rules-t">
+                Welcome to the World Famous Football Fill-in Quiz!
+            </div>
+            <div class="rules-i">
+                It's finally time for you to test your football knowledge against the questions that have stumped our hosts since the quiz's birth!
+            </div>
+            <div class="rules-q">
+                Every question in this quiz has featured in at least one former or current episode of the Football Fill-in! You will have 20 new questions every time you attempt to take on the quiz. When you're ready to begin, press the button below to get started!
+            </div>
+            <form action="/rules" method="POST">
+                <input class="btn btn-danger" type="submit" value="Begin">
+            </form>
+        </div>
+    </section>
+{% endblock %}

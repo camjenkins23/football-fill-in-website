@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block main %}
+<section class="a-search">
+    <div class="a-title mobile">
+        Videos
+    </div>
+    <div class="scrollable">
+        {% for video in videos %}
+        <a href="{{ video.url}}" class="vid-container">
+            <img src="{{ video.thumbnail }}" alt="Thumbnail">
+            <h3>{{ video.title }}</h3>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Archive
+{% endblock %}
+
+{% block main %}
+    <section class="a-search">
+        <div class="a-title">
+            Find any episode of The Football Fill-in!
+        </div>
+        <form id="search-form" action="/archive" method="post">
+            <div class="search-submit">
+                <input type="text" id="search-input" class="search-input" name="query" placeholder="Search...">
+                <button type="submit"><i class="fa-sharp fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="a-title2">
+                Personalize Your Search With Filters!
+            </div>
+            <div class="filter-options">
+                <div class="filter-item">
+                    <input type="radio" name="filter" id="filter-title" value="title" checked>
+                    <label for="filter-title">Title</label>
+                </div>
+                <div class="filter-item">
+                    <input type="radio" name="filter" id="filter-guest" value="guest">
+                    <label for="filter-guest">Guest</label>
+                </div>
+                <div class="filter-item">
+                    <input type="radio" name="filter" id="filter-week" value="week">
+                    <label for="filter-week">Week</label>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <script>
+        // JavaScript code to handle form submission with filters
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get search query and filter value from form elements
+            const searchInput = document.getElementById('search-input').value;
+            const filter = document.querySelector('input[name="filter"]:checked').value;
+
+            // Update the form action to submit the data to your Python backend
+            document.getElementById('search-form').action = '/archive';
+
+            // Create a hidden input element to store the filter value
+            const filterInput = document.createElement('input');
+            filterInput.type = 'hidden';
+            filterInput.name = 'filter';
+            filterInput.value = filter;
+
+            // Append the hidden input element to the form
+            document.getElementById('search-form').appendChild(filterInput);
+
+            // Submit the form
+            document.getElementById('search-form').submit();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quiz
+{% endblock %}
+
+{% block main %}
+<section class="quiz">
+    <div class="a-title title">
+        Quiz
+    </div>
+    <form action="/quiz" method="POST" class="a-title" name="quiz">
+        {% for question in questions %}
+        <div class="quiz-question">
+            <input type="hidden" name="question-id" value="{{ question.db }}">
+            <div class="q-title">
+                {{ question.number + 1 }}. {{ question.question }}
+            </div>
+            <ul>
+                {% for choice in question.answer_choices %}
+                <li class="q-option">
+                    <input type="radio" name="question{{ question.number }}" value="{{ choice }}" id="question{{ question.number }} option{{ loop.index }}">
+                    <label for="question{{ question.number }} option{{ loop.index }}">{{ choice }}</label>
+                </li>
+                {% endfor %}
+                <input type="hidden" name="selected question{{ question.number }}" value="NULL">
+            </ul>
+        </div>
+        {% endfor %}
+        <input class="btn1 btn" type="submit" value="Submit">
+    </form>
+</section>
+
+<script>
+    // JavaScript code to handle form submission and change radio button names
+    var elements = document.querySelectorAll('[name^="question"]');
+    elements.forEach(element => {
+        var clicked = false;
+        var previousName = element.name;
+        element.addEventListener('click', function() {
+            element.name = 'selected ' + previousName;
+        });
+    });
+</script>
+{% endblock %}
