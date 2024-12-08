@@ -3,7 +3,7 @@ from functools import wraps
 from flask import session, redirect, url_for
 
 def get_db_connection():
-    conn = sqlite3.connect("instance/ffin.db")
+    conn = sqlite3.connect("instance/ffin-example.db")
     conn.row_factory = sqlite3.Row
     return conn
 
