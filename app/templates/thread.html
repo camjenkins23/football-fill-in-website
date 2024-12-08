@@ -13,17 +13,17 @@
     <div class="main">
         <div class="f-header">
             <h1 class="f-title">
-                {{ post[0][0] }}
+                {{ post['title'] }}
             </h1>
             <br>
             <div class="f-content">
                 <h3 class="content">
-                    {{ post[0][3] }}
+                    {{ post['content'] }}
                 </h3>
             </div>
             <div class="bottom">
                 <h3 class="username">
-                    @{{ post[0][1][0].username }}
+                    @{{ post['username'] }}
                 </h3>
             </div>
         </div>
@@ -42,28 +42,28 @@
             <div class="comment">
                 <div class="top-comment">
                     <h4 class="username">
-                        @{{ comment[1][0].username }}
+                        @{{ comment['username'] }}
                     </h4>
                     <h4 class="content">
-                        {{ comment[0] }}
+                        {{ comment['text'] }}
                     </h4>
                 </div>
                 <form action="/thread?id={{ id }}" method="POST" class="comment-form">
                     <input type="hidden" name="diff" value="2">
                     <input type="hidden" name="id" value="{{ id }}">
-                    <input type="hidden" name="comment_id" value="{{ comment[3] }}">
+                    <input type="hidden" name="comment_id" value="{{ comment['id'] }}">
                     <textarea name="textarea" placeholder="Reply..."></textarea>
                     <button type="submit" class="btn btn-danger btn-small">Post</button>
                 </form>
                 <div class="replies">
-                    {% for reply in comment[2] %}
+                    {% for reply in comment['replies'] %}
                     <div class="reply">
                         <div class="reply-comment top-comment">
                             <h6 class="username">
-                                @{{ reply[1][0].username }}
+                                @{{ reply['username'] }}
                             </h6>
                             <h6 class="content">
-                                {{ reply[0] }}
+                                {{ reply['text'] }}
                             </h6>
                         </div>
                     </div>

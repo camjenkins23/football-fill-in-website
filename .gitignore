@@ -1,2 +1,19 @@
-*.db
-*.sqlite
+# Environment variables
+.env
+
+# Ignore instance directory except for its structure
+instance/*
+!instance/.gitignore
+
+# Flask session files
+flask_session/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Development tools and temporary files
+*.log
+.vscode/
+.idea/
+*.sqlite3

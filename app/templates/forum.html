@@ -8,7 +8,7 @@
     <section class="f-container">
         <div class="f-banner">
             <div class="top-bar f-use">
-                Welcome, {{ username[0].username }}!
+                Welcome, {{ username }}!
             </div>
             <div class="top-bar a-title">
                 <h1>
@@ -29,10 +29,10 @@
                         </h4>
                         <div class="bottom">
                             <p class="username">
-                                @{{ post[1][0].username }}
+                                @{{ post['post_username'] }}
                             </p>
                             <p class="comment-count">
-                                {{ post[2][0].count }} comments
+                                {{ post['comment_count'] }} comments
                             </p>
                         </div>
                     </a>
