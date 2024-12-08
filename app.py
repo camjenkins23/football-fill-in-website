@@ -1,10 +1,10 @@
-from cs50 import SQL
+import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from functools import wraps
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required
 import random
-
 
 app = Flask(__name__)
 
@@ -12,8 +12,11 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Connect to SQLite database
-db = SQL("sqlite:///ffin.db")
+# Database connection function
+def get_db_connection():
+    conn = sqlite3.connect("ffin.db")
+    conn.row_factory = sqlite3.Row  # Rows returned as dictionaries
+    return conn
 
 @app.after_request
 def after_request(response):
@@ -25,11 +28,9 @@ def after_request(response):
 
 @app.route('/')
 def index():
-
-    videos = db.execute("SELECT * FROM archive ORDER BY o DESC")
-
+    with get_db_connection() as conn:
+        videos = conn.execute("SELECT * FROM archive ORDER BY o DESC").fetchall()
     return render_template('index.html', videos=videos)
-
 
 @app.route('/host')
 def hosts():
@@ -43,216 +44,132 @@ def archive():
         query = request.form.get('query')
         filter = request.form.get('filter')
 
-        for letter in query:
-            if letter in ["'", '"', '/', '%', '_']:
-                return render_template('sorry.html', message="""Sorry, your query was invalid as it contained one of the following characters [', ", /, %, _]""")
+        if any(letter in ["'", '"', '/', '%', '_'] for letter in query):
+            return render_template('sorry.html', message="Invalid characters in query.")
 
+        with get_db_connection() as conn:
+            if filter == 'title':
+                videos = conn.execute("SELECT * FROM archive WHERE title LIKE ? ORDER BY o", (f"%{query}%",)).fetchall()
+            elif filter == 'guest':
+                videos = conn.execute("SELECT * FROM archive WHERE guests LIKE ? ORDER BY o", (f"%{query}%",)).fetchall()
+            elif filter == 'week':
+                videos = conn.execute("SELECT * FROM archive WHERE week = ? ORDER BY o", (query,)).fetchall()
 
-        # Perform search based on the selected filter
-        if filter == 'title':
-            videos = db.execute("SELECT * FROM archive WHERE title LIKE ? ORDER BY o", ("%" + query + "%"))
-            message = "Sorry, no video was found for the title '{}'.".format(query)
-
-        elif filter == 'guest':
-            videos = db.execute("SELECT * FROM archive WHERE guests LIKE ? ORDER BY o", ("%" + query + "%"))
-            message = "Sorry, no video was found for the guest '{}'.".format(query)
-
-        elif filter == 'week':
-            videos = db.execute("SELECT * FROM archive WHERE week = ? ORDER BY o", query)
-            message = "Sorry, no video was found for the week '{}'.".format(query)
-
-        if videos == []:
-            return render_template("sorry.html", message=message)
-
-        # Return the search results or render a template with the results
+        if not videos:
+            return render_template('sorry.html', message=f"No videos found for {filter}: {query}")
         return render_template('results.html', videos=videos)
-
 
 @app.route('/rules', methods=['GET', 'POST'])
 def rules():
     if request.method == "GET":
         return render_template('rules.html')
     elif request.method == "POST":
-        counter = 0
         questions = []
-        while counter < 20:
-            db_question = random.randint(1, 317)
-            question_data = db.execute("SELECT * FROM quiz WHERE id = ?", db_question)
-            question = {
-                'question': question_data[0]['question'],
-                'answer_choices': [question_data[0]['answer'], question_data[0]['p1'], question_data[0]['p2'], question_data[0]['p3']],
-                'number': counter,
-                'db': db_question
-            }
-            random.shuffle(question['answer_choices'])
-            questions.append(question)
-            counter += 1
-
+        with get_db_connection() as conn:
+            while len(questions) < 20:
+                db_question = random.randint(1, 317)
+                question_data = conn.execute("SELECT * FROM quiz WHERE id = ?", (db_question,)).fetchone()
+                if question_data:
+                    question = {
+                        'number': len(questions),  # Assign the current question index
+                        'question': question_data['question'],
+                        'answer_choices': [
+                            question_data['answer'],
+                            question_data['p1'],
+                            question_data['p2'],
+                            question_data['p3']
+                        ],
+                        'db': db_question
+                    }
+                    random.shuffle(question['answer_choices'])
+                    questions.append(question)
         return render_template('quiz.html', questions=questions)
 
 
 @app.route('/quiz', methods=['POST'])
 def quiz():
-        answers = [value for key, value in request.form.items() if key.startswith('selected')]
-        ids = request.form.getlist('question-id')
-        score = 0
-        counter = 0
-        question_answer = []
-        while counter < 20:
-            user_answer = answers[counter]
-            id = ids[counter]
-            for letter in id:
-                if letter in ["'", '"', '/', '%', '_']:
-                    return render_template('sorry.html', message="""Sorry, your query was invalid as it contained one of the following characters [', ", /, %, _]""")
-            correct_answer_question = db.execute("SELECT answer, question FROM quiz WHERE id = ?", id)
-            if user_answer == correct_answer_question[0]['answer']:
+    answers = [value for key, value in request.form.items() if key.startswith('selected')]
+    ids = request.form.getlist('question-id')
+    score = 0
+    question_answer = []
+
+    with get_db_connection() as conn:
+        for user_answer, id in zip(answers, ids):
+            correct_answer_question = conn.execute("SELECT answer, question FROM quiz WHERE id = ?", (id,)).fetchone()
+            if correct_answer_question and user_answer == correct_answer_question['answer']:
                 score += 1
-
-            question_answer.append([correct_answer_question[0]['question'], correct_answer_question[0]['answer'], user_answer,])
-
-            counter += 1
-
-
-        return render_template('self.html', questions=question_answer, score=score)
-
-
-
+            question_answer.append([
+                correct_answer_question['question'],
+                correct_answer_question['answer'],
+                user_answer
+            ])
+    return render_template('self.html', questions=question_answer, score=score)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
-    # Forget any user_id
     session.clear()
 
     if request.method == "POST":
         user_username = request.form.get("l-username")
         user_password = request.form.get("l-password")
 
+        if not user_username or not user_password:
+            return render_template('sorry.html', message="Username and password are required.")
 
-        for letter in user_username:
-                if letter in ["'", '"', '/', '%', '_']:
-                    return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
+        with get_db_connection() as conn:
+            rows = conn.execute("SELECT * FROM users WHERE username = ?", (user_username,)).fetchall()
 
-        for letter in user_password:
-            if letter in ["'", '"', '/', '%', '_']:
-                return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
-
-
-        # Ensure username was submitted
-        if not user_username:
-            return render_template('sorry.html',message='You must provide a username.')
-
-        # Ensure password was submitted
-        elif not user_password:
-            return render_template('sorry.html',message='You must provide a password.')
-
-        # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username LIKE ?", user_username)
-
-        # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], user_password):
-            return render_template('sorry.html',message='Invalid username or password')
+            return render_template('sorry.html', message="Invalid username or password.")
 
-        # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-
-        # Redirect user to home page
         return redirect("/forum")
 
-
-    elif request.method == 'GET':
-        return render_template('login.html')
+    return render_template('login.html')
 
 @app.route("/register", methods=["POST"])
 def register():
     user_username = request.form.get('r-username')
     user_password = request.form.get('r-password')
-    db_usernames = db.execute('SELECT username FROM users')
+    confirm_password = request.form.get('r-confirm')
 
-    if user_username == "" or user_password == "" or user_password != request.form.get('r-confirm'):
-            return render_template('sorry.html', message="Username or Password Invalid. Please Try Again.")
+    if not user_username or not user_password or user_password != confirm_password:
+        return render_template('sorry.html', message="Invalid username or password.")
 
-    for letter in user_username:
-            if letter in ["'", '"', '/', '%', '_']:
-                return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
+    with get_db_connection() as conn:
+        existing_users = conn.execute('SELECT username FROM users').fetchall()
+        if any(user['username'].upper() == user_username.upper() for user in existing_users):
+            return render_template('sorry.html', message="Username already taken.")
 
-    for letter in user_password:
-        if letter in ["'", '"', '/', '%', '_']:
-            return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
-
-    for username in db_usernames:
-        if username['username'].upper() == user_username.upper():
-            return render_template('sorry.html', message="Username Taken. Please Try Again.")
-
-    db.execute("INSERT INTO users (username, hash) VALUES (?,?)", user_username, generate_password_hash(user_password))
+        conn.execute("INSERT INTO users (username, hash) VALUES (?, ?)", (user_username, generate_password_hash(user_password)))
 
     return redirect('/forum')
 
 @app.route("/thread", methods=['GET', 'POST'])
 def thread():
+    post_id = request.args.get('id')
 
-    if request.method == 'POST':
-            diff = int(request.form.get('diff'))
-            comment = request.form.get('textarea')
-            post_id = request.form.get('id')
+    with get_db_connection() as conn:
+        post = conn.execute("SELECT * FROM posts WHERE id = ?", (post_id,)).fetchall()
+        comments = conn.execute("SELECT * FROM comments WHERE post_id = ?", (post_id,)).fetchall()
 
-            if comment in ['']:
-                return render_template('sorry.html', message="Invalid comment or reply. Please Try Again.")
-            print(diff)
+        for comment in comments:
+            replies = conn.execute("SELECT * FROM replies WHERE comment_id = ?", (comment['id'],)).fetchall()
+            comment['replies'] = replies
 
-
-            if diff == 1:
-                 db.execute('INSERT INTO comments (user_id, post_id, text) VALUES (?,?,?)', session['user_id'], post_id, comment)
-            elif diff == 2:
-                 comment_id = request.form.get('comment_id')
-                 db.execute('INSERT INTO replies (user_id, post_id, comment_id, text) VALUES (?, ?, ?, ?)', session['user_id'], post_id, comment_id, comment)
-
-    post = []
-    comments = []
-    id = request.args.get('id')
-
-    db_post = db.execute('SELECT * FROM posts WHERE id = ?', id)
-    db_comments = db.execute('SELECT * FROM comments WHERE post_id = ?', id)
-
-    for item in db_post:
-        post.append([item['title'], db.execute('SELECT username FROM users WHERE id = ?', item['user_id']), db.execute('SELECT COUNT(*) AS count FROM comments WHERE post_id = ?', id), item['content']])
-
-    for item in db_comments:
-         db_replies = db.execute('SELECT * FROM replies WHERE comment_id = ?', item['id'])
-         replies = []
-         for reply in db_replies:
-             replies.append([reply['text'], db.execute('SELECT username FROM users WHERE id = ?', reply['user_id'])])
-
-         comments.append([item['text'], db.execute('SELECT username FROM users WHERE id = ?', item['user_id']), replies, item['id']])
-
-
-    return render_template('thread.html', post=post, comments=comments, id=id)
-
-
-
-
+    return render_template('thread.html', post=post, comments=comments)
 
 @app.route('/forum', methods=['GET', 'POST'])
 @login_required
 def forum():
-
-    if request.method == 'POST':
-        pass
-
-    posts = []
-    db_posts = db.execute('SELECT * FROM posts')
-    for post in db_posts:
-        posts.append([post['title'], db.execute('SELECT username FROM users WHERE id = ?', post['user_id']), db.execute('SELECT COUNT(*) AS count FROM comments WHERE post_id = ?', post['id']), post['id']])
-
-    username = db.execute('SELECT username FROM users WHERE id = ?', session['user_id'])
-
-    return render_template('forum.html', posts=posts, username=username)
+    with get_db_connection() as conn:
+        posts = conn.execute('SELECT * FROM posts').fetchall()
+    return render_template('forum.html', posts=posts)
 
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     session.clear()
-
     return redirect('/login')
 
 @app.route('/post', methods=['POST'])
@@ -261,21 +178,13 @@ def post():
     title = request.form.get('post-title')
     content = request.form.get('post-text')
 
-    if title == "" or content == "":
-            return render_template('sorry.html', message="Please enter text to post. Please Try Again.")
+    if not title or not content:
+        return render_template('sorry.html', message="Title and content are required.")
 
-    for letter in title:
-            if letter in ["'", '"', '/', '%', '_']:
-                return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
-
-    for letter in content:
-        if letter in ["'", '"', '/', '%', '_']:
-            return render_template('sorry.html', message="""Sorry, your username was invalid as it contained one of the following characters [', ", /, %, _]""")
-
-    db.execute('INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)', session['user_id'], title, content)
+    with get_db_connection() as conn:
+        conn.execute('INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)', (session['user_id'], title, content))
 
     return redirect('/forum')
-
 
 if __name__ == '__main__':
     app.run()
