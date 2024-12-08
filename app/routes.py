@@ -19,7 +19,7 @@ def register_routes(app):
     
     @app.route('/forum')
     def forum():
-        return render_template('sorry.html', message="Forum functionality is currently unavaialable") 
+        return render_template('sorry.html', message="Forum functionality is currently unavailable") 
 
     @app.route('/archive', methods=['GET', 'POST'])
     def archive():
