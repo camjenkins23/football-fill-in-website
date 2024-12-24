@@ -12,9 +12,9 @@
     <form action="/quiz" method="POST" class="a-title" name="quiz">
         {% for question in questions %}
         <div class="quiz-question">
-            <input type="hidden" name="question-id" value="{{ question.db }}">
+            <input type="hidden" name="question-id" value="{{ question.id }}">
             <div class="q-title">
-                {{ question.number + 1 }}. {{ question.question }}
+                {{ question.number}}. {{ question.question }}
             </div>
             <ul>
                 {% for choice in question.answer_choices %}

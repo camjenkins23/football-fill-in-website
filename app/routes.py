@@ -56,6 +56,7 @@ def register_routes(app):
                         question = {
                             'number': len(questions) + 1,
                             'question': question_data['question'],
+                            'id': question_id,
                             'answer_choices': [
                                 question_data['answer'],
                                 question_data['p1'],
@@ -70,19 +71,25 @@ def register_routes(app):
     @app.route('/quiz', methods=['POST'])
     def quiz():
         """Submit and grade the quiz."""
-        answers = request.form.getlist('selected')
+        answers = []
+        for key, value in request.form.items():
+            if (key.startswith('selected ')):
+                answers.append(value)
+
         ids = request.form.getlist('question-id')
         score = 0
         results = []
 
         with get_db_connection() as conn:
             for user_answer, question_id in zip(answers, ids):
-                correct_answer = conn.execute("SELECT answer FROM quiz WHERE id = ?", (question_id,)).fetchone()
-                if correct_answer and user_answer == correct_answer['answer']:
+                question_data = conn.execute("SELECT * FROM quiz WHERE id = ?", (question_id,)).fetchone()
+                if question_data and user_answer == question_data['answer']:
                     score += 1
+
                 results.append({
+                    'question': question_data['question'],
                     'user_answer': user_answer,
-                    'correct_answer': correct_answer['answer'],
+                    'correct_answer': question_data['answer'],
                 })
         return render_template('self.html', score=score, results=results)
 

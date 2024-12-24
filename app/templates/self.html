@@ -38,10 +38,10 @@
         Review
     </div>
     <div class="results">
-        {% for question in questions %}
+        {% for result in results %}
         <div class="quiz-answer">
             <div class="q-title">
-              {{ loop.index }}. {{ question[0] }}
+              {{ loop.index }}. {{ result.question }}
             </div>
             <div class="generate">
                 <div class="r-marg">
@@ -49,10 +49,10 @@
                         Your Response:
                     </div>
                     <div class="qa-title">
-                        {% if question[2] == 'NULL' %}
+                        {% if result.user_answer == 'NULL' %}
                         *Unanswered*
                         {% else %}
-                        {{ question[2] }}
+                        {{ result.user_answer }}
                         {% endif %}
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                         Correct Response:
                     </div>
                     <div class="qa-title">
-                        {{ question[1] }}
+                        {{ result.correct_answer }}
                     </div>
                 </div>
             </div>
