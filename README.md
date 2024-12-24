@@ -1,3 +1,70 @@
-# THE FOOTBALL FILL-IN
-#### Description:
-Welcome to the exciting world of the Football Fill-in web-based application! Designed exclusively for the show's audience members, this platform aims to foster a friendly and interactive environment where fans can come together and immerse themselves in a wealth of information and entertainment related to the show. One of the standout features of this application is its extensive video archive, which grants users access to every post ever made on the channel. Unlike conventional video platforms like YouTube, our application provides unique filtering options, allowing users to search for specific content based on their preferences. But the fun doesn't stop there! For those who love a good challenge, the quiz section offers an engaging experience reminiscent of the show itself. Drawing questions and answers from a vast database that spans the entire history of the program, fans can test their knowledge and see how well they measure up against other avid viewers. It's a fantastic opportunity to showcase your expertise and perhaps even learn something new about your favorite football show. The forum page takes community interaction to a whole new level. By creating an account and logging in, users can actively engage in discussions, share their thoughts, and connect with like-minded individuals who share the same passion for the Football Fill-in. The platform encourages healthy conversations, encourages fans to debate, speculate, and celebrate together, further enriching the overall experience of being part of this incredible fan community. Moreover, the application is designed to be user-friendly and accessible, ensuring that everyone, regardless of their technical expertise, can navigate and make the most of its features. The interface is  intuitive, and the user experience is prioritized to make sure that everyone can fully enjoy and benefit from all that the application has to offer.So, whether you're a die-hard fan or a curious newcomer to the world of Football Fill-in, this web-based application promises to be your one-stop destination for information, entertainment, and interaction with a vibrant community of fellow enthusiasts. We hope you enjoy your time here and that the application adds a new layer of excitement to your overall Football Fill-in experience! klDfjksadjfaskldfjalksdfjalksdfjlaksdfjlkasdfjsaassssssssssssssssssdjssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+# Football Fill-In Website
+## Description
+The Football Fill-In Website is a dynamic and interactive platofrm for the fans of the Football Fill-In show. This website provides fans with access to a vast archive of videos and an engaging quiz based on the questions taken directly from the show. Designed with simplicity and accessibility in mind, the platform ensures an enhjoyable experience for new and old fans alike.
+
+## Features
+### 1. Video Archive
+* Access to a complete library of past shows.
+* Advanced filtering options to search for videos by title, guest or week. 
+### 2. Quiz Section
+* Test your knowledge with quizzes generated from the database of show-related questions.
+* Randomized questions to ensure a new quiz every time.
+### 3. User Friendly Design
+* Simple Navigation and responsive layout for easy access across different devices.
+
+## Setup
+### Prerequisites
+* Python 3.9+
+* Flask and required Python packages (see ```requirements.txt```)
+### Steps to Run Locally
+#### 1. Clone the repository
+```bash
+git clone https://github.com/camjenkins23/football-fill-in-website.git
+cd football-fill-in-website
+```
+#### 2. Set Up the Environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+#### 3. Environment Variables
+* Create a .env file in the root directory.
+* Replace your ```secret_key_here``` with a secure random key.
+```txt
+SECRET_KEY=your_secret_key_here
+ ```
+ #### 4. Run the Application
+ * Start a flask development server:
+ ```bash
+ python run.py
+ ```
+
+ ## Project Structure
+ ```bash
+ football-fill-in/
+├── app/
+│   ├── __init__.py        
+│   ├── routes.py          
+│   ├── utils.py           
+│   ├── static/            
+│   │   └── styles.css
+│   ├── templates/         
+│       ├── layout.html
+│       ├── index.html
+│       ├── archive.html
+│       ├── quiz.html
+│       └── sorry.html
+├── instance/
+│   └── ffin.example.db    
+├── .env                  
+├── requirements.txt       
+├── run.py                 
+├── README.md              
+ ```
+
+## Future Enhancements
+* ### Forum Functionality:
+    * The forum is currently disabled but can be re-enabled by updating the ```routes.py``` file.
+* ### Deployment:
+    * Hosting the application on a third-party platform for broader accessibility.
